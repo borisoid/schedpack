@@ -24,3 +24,8 @@ print coverage report to console:
 ```shell
 coverage report
 ```
+
+### Create distribution
+```shell
+python setup.py sdist
+```

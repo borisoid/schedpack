@@ -1,10 +1,11 @@
+from setuptools import find_packages
 from distutils.core import setup
 
 
 setup(
     name = 'schedpack',
     packages = ['schedpack'],
-    version = '0.1.2',
+    version = '0.1.3',
     license = 'MIT',
     description = 'Package for scheduling activities that last some time',
     author = 'borisoid',
@@ -16,7 +17,7 @@ setup(
     classifiers = [
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
+        'Topic :: Software Development :: Libraries :: Python Modules',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8',
