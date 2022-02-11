@@ -6,61 +6,67 @@ from typing import (
     Any,
     Callable,
     Iterable,
+    Optional,
     Tuple,
     Union,
 )
 
 from .abc import (
     seconds,
-    TimeSpanABC,
-    InnertTimeSpanABC,
+    Instrumented_StaticTimeSpanABC,
+    StaticTimeSpanABC,
     PeriodicTimePointABC,
     PeriodicTimeSpanABC,
     PeriodicActivityABC,
 )
 
 
-class TimeSpanBase(TimeSpanABC):
-    def __bool__(self) -> bool:
-        return bool(self.start_time) and bool(self.end_time)
+class TimeSpanInitMixin:
+    def __init__(
+        self,
+        *,
+        start: Optional[datetime] = None,
+        end: Optional[datetime] = None,
+        duration: Optional[seconds] = None,
+    ):
+        start_nn = start is not None
+        end_nn = end is not None
+        duration_nn = duration is not None
 
-    def __eq__(self, other) -> bool:
-        return (
-            getattr(self, 'start_time') == getattr(other, 'start_time') and
-            getattr(self, 'end_time') == getattr(other, 'end_time')
+        if start_nn and end_nn and duration_nn:
+            raise ValueError('Cannot specify all three: start, end, duration')
+
+        self.start = start
+        self.end = end
+        if start_nn and duration_nn:
+            self.end = start + timedelta(seconds=duration)
+        elif end_nn and duration_nn:
+            self.start = end - timedelta(seconds=duration)
+
+
+class Instrumented_StaticTimeSpan(TimeSpanInitMixin, Instrumented_StaticTimeSpanABC):
+    def __bool__(self) -> bool:
+        return bool(self.start) and bool(self.end)
+
+    def __hash__(self) -> int:
+        return hash((self.start, self.end))
+    
+    def __eq__(self, other: Any) -> bool:
+        return issubclass(other, StaticTimeSpanABC) and (
+            self.start == other.start and
+            self.end == other.end
         )
 
-    def __iter__(self):
-        return iter((self.start_time, self.end_time))
-
-
-class TimeSpan(TimeSpanBase):
-    def __lt__(self, other):
-        # time span with no time is considered to be
-        # infinitely far in the future. so it's never less than any other one
-        if not self :
-            return False
-        if not other:
-            return True
-
-        self_start = getattr(self, 'start_time')
-        other_start = getattr(other, 'start_time')
-
+    def __lt__(self, other: StaticTimeSpanABC) -> bool:
+        self_start, other_start = self.start, other.start
         return not other_start or (self_start and self_start < other_start)
 
+    def __gt__(self, other: StaticTimeSpanABC) -> bool:
+        self_start, other_start = self.start, other.start
+        return not self_start or (other_start and other_start < self_start)
 
-class TimeSpanByStartTimeAndDuration(TimeSpan):
-    def __init__(self, start_time=None, duration=0):
-        self.start_time = start_time
-        self.end_time = (
-            start_time + timedelta(seconds=duration) if start_time else None
-        )
-
-    def __str__(self):
-        return f'({self.start_time!s} - {self.end_time!s})'
-
-    def __repr__(self):
-        return f'({self.start_time!s} - {self.end_time!s})'
+    def __iter__(self):
+        return iter((self.start, self.end))
 
 
 class PeriodicTimeSpan(PeriodicTimeSpanABC):
@@ -71,22 +77,23 @@ class PeriodicTimeSpan(PeriodicTimeSpanABC):
     def is_ongoing(self, moment: datetime) -> bool:
         return bool(self.get_current(moment))
 
-    def get_current(self, moment: datetime) -> TimeSpanABC:
+    def get_current(self, moment: datetime) -> Instrumented_StaticTimeSpanABC:
         next = self.period_engine.get_next(moment)
         current = self.period_engine.get_next(moment - timedelta(seconds=self.duration))
         if (not next) or (current and (next > current)):
-            return TimeSpanByStartTimeAndDuration(current, self.duration)
+            return Instrumented_StaticTimeSpan(start=current, duration=self.duration)
         else:
-            return TimeSpanByStartTimeAndDuration()
+            return Instrumented_StaticTimeSpan()
 
-    def get_next(self, moment: datetime) -> TimeSpanABC:
-        return TimeSpanByStartTimeAndDuration(
-            self.period_engine.get_next(moment), self.duration
+    def get_next(self, moment: datetime) -> Instrumented_StaticTimeSpanABC:
+        return Instrumented_StaticTimeSpan(
+            start=self.period_engine.get_next(moment),
+            duration=self.duration,
         )
 
     def get_current_or_next(
         self, moment: datetime, *, return_is_current: bool = False
-    ) -> Union[TimeSpanABC, Tuple[TimeSpanABC, Union[bool, None]]]:
+    ) -> Union[Instrumented_StaticTimeSpanABC, Tuple[Instrumented_StaticTimeSpanABC, Optional[bool]]]:
         span = self.get_current(moment)
         if span:
             return (span, True) if return_is_current else span
@@ -95,21 +102,25 @@ class PeriodicTimeSpan(PeriodicTimeSpanABC):
         if span:
             return (span, False) if return_is_current else span
 
-        span = TimeSpanByStartTimeAndDuration()
+        span = Instrumented_StaticTimeSpan()
         return (span, None) if return_is_current else span
 
 
 class PeriodicTimeSpanWithExtraConditions(PeriodicTimeSpan):
     def __init__(
-        self, period_engine: PeriodicTimePointABC, duration: seconds,
-        extra_conditions: Iterable[Callable[[TimeSpanABC], bool]] = None,
-        extra_conditions_any: bool = False
+        self,
+        period_engine: PeriodicTimePointABC,
+        duration: seconds,
+        extra_conditions: Iterable[Callable[[Instrumented_StaticTimeSpanABC], bool]] = None,
+        extra_conditions_any: bool = False,
     ):
         super().__init__(period_engine, duration)
         self.extra_conditions = extra_conditions
         self.extra_conditions_any = extra_conditions_any
 
-    def extra_conditions_ok(self, span: TimeSpanABC) -> bool:
+    def extra_conditions_ok(
+        self, span: Instrumented_StaticTimeSpanABC
+    ) -> bool:
         if not self.extra_conditions:
             return True
 
@@ -119,23 +130,25 @@ class PeriodicTimeSpanWithExtraConditions(PeriodicTimeSpan):
             all(map(lambda ec: ec(span), self.extra_conditions))
         )
 
-    def get_current(self, moment: datetime) -> TimeSpanABC:
+    def get_current(self, moment: datetime) -> Instrumented_StaticTimeSpanABC:
         span = super().get_current(moment)
         if span and self.extra_conditions_ok(span):
             return span
         else:
-            return TimeSpanByStartTimeAndDuration()
+            return Instrumented_StaticTimeSpan()
 
-    def get_next(self, moment: datetime, extra_conditions_max_fails=20) -> TimeSpanABC:
-        span = TimeSpanByStartTimeAndDuration(moment, 0)
+    def get_next(
+        self, moment: datetime, extra_conditions_max_fails=20
+    ) -> Instrumented_StaticTimeSpanABC:
+        span = Instrumented_StaticTimeSpan(start=moment, duration=0)
         while True:
-            span = super().get_next(span.start_time)
+            span = super().get_next(span.start)
             if span:
                 if not self.extra_conditions_ok(span):
                     if extra_conditions_max_fails is not None:
                         extra_conditions_max_fails -= 1
                         if extra_conditions_max_fails <= 0:
-                            return TimeSpanByStartTimeAndDuration()
+                            return Instrumented_StaticTimeSpan()
                 else:
                     break
             else:
@@ -146,8 +159,10 @@ class PeriodicTimeSpanWithExtraConditions(PeriodicTimeSpan):
 
 class PeriodicActivity(PeriodicTimeSpan, PeriodicActivityABC):
     def __init__(
-        self, payload: Any, period_engine: PeriodicTimePointABC,
-        duration: seconds
+        self,
+        payload: Any,
+        period_engine: PeriodicTimePointABC,
+        duration: seconds,
     ):
         super().__init__(period_engine, duration)
         self.payload = payload
@@ -155,24 +170,27 @@ class PeriodicActivity(PeriodicTimeSpan, PeriodicActivityABC):
 
 class PeriodicActivityWithExtraConditions(PeriodicTimeSpanWithExtraConditions, PeriodicActivityABC):
     def __init__(
-        self, payload: Any, period_engine: PeriodicTimePointABC, duration: seconds,
-        extra_conditions: Iterable[Callable[[TimeSpanABC], bool]] = None,
-        extra_conditions_any: bool = False
+        self,
+        payload: Any,
+        period_engine: PeriodicTimePointABC,
+        duration: seconds,
+        extra_conditions: Iterable[Callable[[Instrumented_StaticTimeSpanABC], bool]] = None,
+        extra_conditions_any: bool = False,
     ):
         super().__init__(period_engine, duration, extra_conditions, extra_conditions_any)
         self.payload = payload
 
 
-class ResolvedActivity(InnertTimeSpanABC):
+class ResolvedActivity(StaticTimeSpanABC):
     """An activity with known start/end time"""
 
-    def __init__(self, payload: Any, start_time: datetime, end_time: datetime):
+    def __init__(self, payload: Any, start: datetime, end: datetime):
         self.payload = payload
-        self.start_time = start_time
-        self.end_time = end_time
+        self.start = start
+        self.end = end
 
     def __repr__(self):
-        return f'{self.payload!s}: {self.start_time!s} - {self.end_time!s}'
+        return f'<{self.payload!s}: [{self.start!s} ... {self.end!s}]>'
 
 
 class ManualSchedule:
@@ -180,29 +198,35 @@ class ManualSchedule:
         self.activities = activities
 
     def get_next(self, moment: datetime) -> Tuple[ResolvedActivity]:
-        activities_nexts = self.get_activity_next_mapping(moment)
-        if not activities_nexts:
+        activity__next__s = self._activity__next__s(moment)
+        if not activity__next__s:
             return ()
-        soonest_span = min(activities_nexts, key=lambda a: a[1])[1]
+        soonest_span = min(activity__next__s, key=lambda a: a[1])[1]
         return () if not soonest_span else tuple(
             ResolvedActivity(a[0].payload, *a[1])
-            for a in activities_nexts
-            if a[1].start_time == soonest_span.start_time
+            for a in activity__next__s
+            if a[1].start == soonest_span.start
         )
 
-    def get_activity_next_mapping(self, moment: datetime) -> Tuple[Tuple[PeriodicActivityABC, TimeSpanABC]]:
+    def _activity__next__s(
+        self, moment: datetime
+    ) -> Tuple[Tuple[PeriodicActivityABC, Instrumented_StaticTimeSpanABC]]:
         return tuple(map(
             lambda a: (a, a.get_next(moment)),
             self.activities
         ))
 
     def get_current(self, moment: datetime) -> Tuple[ResolvedActivity]:
-        activities_currents = self.get_activity_current_mapping(moment)
+        activity__current__s = self._activity__current__s(moment)
         return tuple(
-            ResolvedActivity(a[0].payload, *a[1]) for a in activities_currents if a[1]
+            ResolvedActivity(a[0].payload, *a[1])
+            for a in activity__current__s
+            if a[1]  # if current
         )
 
-    def get_activity_current_mapping(self, moment: datetime) -> Tuple[Tuple[PeriodicActivityABC, TimeSpanABC]]:
+    def _activity__current__s(
+        self, moment: datetime
+    ) -> Tuple[Tuple[PeriodicActivityABC, Instrumented_StaticTimeSpanABC]]:
         return tuple(map(
             lambda a: (a, a.get_current(moment)),
             self.activities
@@ -211,33 +235,33 @@ class ManualSchedule:
     def get_current_or_next(
         self, moment: datetime, *, return_is_current: bool = False
     ) -> Union[Tuple[ResolvedActivity], Tuple[Tuple[ResolvedActivity], bool]]:
-        activities_currents_or_nexts = self.get_activity_current_or_next_mapping(moment)
-        if not activities_currents_or_nexts:
+        activity__current_or_next__ongoing__s = self._activity__current_or_next__ongoing__s(moment)
+        if not activity__current_or_next__ongoing__s:
             return ((), None) if return_is_current else ()
         
-        currents = tuple(
+        current_s = tuple(
             ResolvedActivity(a[0].payload, *a[1])
-            for a in activities_currents_or_nexts
+            for a in activity__current_or_next__ongoing__s
             if a[2]  # if is current
         )
-        if currents:
-            return (currents, True) if return_is_current else currents
+        if current_s:
+            return (current_s, True) if return_is_current else current_s
 
-        soonest_span = min(activities_currents_or_nexts, key=lambda a: a[1])[1]
-        nexts = tuple(
+        soonest_span = min(activity__current_or_next__ongoing__s, key=lambda a: a[1])[1]
+        next_s = tuple(
             ResolvedActivity(a[0].payload, *a[1])
-            for a in activities_currents_or_nexts
-            if a[2] == False and a[1].start_time == soonest_span.start_time
+            for a in activity__current_or_next__ongoing__s
+            if a[2] == False and a[1].start == soonest_span.start
         )
-        if nexts:
-            return (nexts, False) if return_is_current else nexts
+        if next_s:
+            return (next_s, False) if return_is_current else next_s
 
         return ((), None) if return_is_current else ()
 
-    def get_activity_current_or_next_mapping(
+    def _activity__current_or_next__ongoing__s(
         self, moment: datetime
-    ) -> Tuple[Tuple[PeriodicActivityABC, TimeSpanABC, bool]]:
-        """return ((<activity>, <current or next time span>, <is it ongoing>), ...)"""
+    ) -> Tuple[Tuple[PeriodicActivityABC, Instrumented_StaticTimeSpanABC, bool]]:
+        """Return ``((<activity>, <current or next time span>, <is it ongoing>), ...)``"""
         return tuple(map(
             lambda a: (a, *a.get_current_or_next(moment, return_is_current=True)),
             self.activities

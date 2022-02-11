@@ -1,6 +1,5 @@
 from .schedule import (
-    TimeSpan,
-    TimeSpanByStartTimeAndDuration,
+    Instrumented_StaticTimeSpan,
     
     PeriodicTimeSpan,
     PeriodicTimeSpanWithExtraConditions,

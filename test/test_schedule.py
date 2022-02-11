@@ -64,15 +64,15 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'thu c1 ow')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-01T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-01T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
-    def test_schedule_get_next__when_start_time_equals_moment(self):
+    def test_schedule_get_next__when_start_equals_moment(self):
         moment = arrow.get('2021-07-02T08:00:00', tzinfo='Europe/Moscow').datetime
 
         activities = self.schedule.get_next(moment)
@@ -80,11 +80,11 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'fri c2')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-02T09:50:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-02T11:25:00', tzinfo='Europe/Moscow').datetime
         )
 
@@ -96,24 +96,24 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 2)
         self.assertEqual(activities[0].payload, 'sun c11')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-04T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-04T09:35:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(activities[1].payload, 'sun c12')
         self.assertEqual(
-            activities[1].start_time,
+            activities[1].start,
             arrow.get('2021-07-04T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[1].end_time,
+            activities[1].end,
             arrow.get('2021-07-04T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
-    def test_schedule_get_next__when_start_time_equals_moment_and_many_activities(self):
+    def test_schedule_get_next__when_start_equals_moment_and_many_activities(self):
         moment = arrow.get('2021-07-04T08:00:00', tzinfo='Europe/Moscow').datetime
 
         activities = self.schedule.get_next(moment)
@@ -121,15 +121,15 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'sun c2')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-04T09:50:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-04T11:25:00', tzinfo='Europe/Moscow').datetime
         )
 
-    def test_schedule_get_next__when_moment_equals_end_time(self):
+    def test_schedule_get_next__when_moment_equals_end(self):
         moment = arrow.get('2021-07-02T09:35:00', tzinfo='Europe/Moscow').datetime
 
         activities = self.schedule.get_next(moment)
@@ -137,11 +137,11 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'fri c2')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-02T09:50:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-02T11:25:00', tzinfo='Europe/Moscow').datetime
         )
 
@@ -152,7 +152,7 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
 
         self.assertEqual(len(activities), 0)
 
-    def test_schedule_get_current__when_start_time_equals_moment_and_extra_conditions(self):
+    def test_schedule_get_current__when_start_equals_moment_and_extra_conditions(self):
         moment = arrow.get('2021-07-01T08:00:00', tzinfo='Europe/Moscow').datetime
 
         activities = self.schedule.get_current(moment)
@@ -160,15 +160,15 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'thu c1 ow')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-01T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-01T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
-    def test_schedule_get_current__when_moment_equals_end_time(self):
+    def test_schedule_get_current__when_moment_equals_end(self):
         moment = arrow.get('2021-07-02T09:35:00', tzinfo='Europe/Moscow').datetime
 
         activities = self.schedule.get_current(moment)
@@ -183,20 +183,20 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 2)
         self.assertEqual(activities[0].payload, 'sun c11')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-04T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-04T09:35:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(activities[1].payload, 'sun c12')
         self.assertEqual(
-            activities[1].start_time,
+            activities[1].start,
             arrow.get('2021-07-04T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[1].end_time,
+            activities[1].end,
             arrow.get('2021-07-04T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
@@ -208,11 +208,11 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'thu c1 ow')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-01T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-01T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
@@ -224,11 +224,11 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'thu c1 ow')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-01T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-01T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
@@ -243,11 +243,11 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'thu c1 ow')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-01T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-01T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
@@ -262,11 +262,11 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'thu c1 ow')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-01T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-01T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
@@ -281,20 +281,20 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 2)
         self.assertEqual(activities[0].payload, 'sun c11')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-04T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-04T09:35:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(activities[1].payload, 'sun c12')
         self.assertEqual(
-            activities[1].start_time,
+            activities[1].start,
             arrow.get('2021-07-04T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[1].end_time,
+            activities[1].end,
             arrow.get('2021-07-04T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
@@ -309,20 +309,20 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 2)
         self.assertEqual(activities[0].payload, 'sun c11')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-04T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-04T09:35:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(activities[1].payload, 'sun c12')
         self.assertEqual(
-            activities[1].start_time,
+            activities[1].start,
             arrow.get('2021-07-04T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[1].end_time,
+            activities[1].end,
             arrow.get('2021-07-04T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
@@ -360,7 +360,7 @@ class TestEmptySchedule(unittest.TestCase):
         self.assertEqual(activities, ((), None))
 
 
-class TestScheduleWithImposibleExtraConditions(unittest.TestCase):
+class TestScheduleWithImpossibleExtraConditions(unittest.TestCase):
     def setUp(self):
         self.schedule = ManualSchedule([
             SchoolClass('thu c1', cron('thu', c1), extra_conditions=[impossible_condition]),
@@ -391,11 +391,11 @@ class TestScheduleWithImposibleExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'fri c12')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-02T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-02T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
@@ -407,11 +407,11 @@ class TestScheduleWithImposibleExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'thu c2')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-01T09:50:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-01T11:25:00', tzinfo='Europe/Moscow').datetime
         )
 
@@ -423,11 +423,11 @@ class TestScheduleWithImposibleExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'fri c12')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-02T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-02T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
@@ -442,11 +442,11 @@ class TestScheduleWithImposibleExtraConditions(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'fri c12')
         self.assertEqual(
-            activities[0].start_time,
+            activities[0].start,
             arrow.get('2021-07-02T08:00:00', tzinfo='Europe/Moscow').datetime
         )
         self.assertEqual(
-            activities[0].end_time,
+            activities[0].end,
             arrow.get('2021-07-02T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 

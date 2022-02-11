@@ -7,48 +7,64 @@ from datetime import (
 )
 from typing import (
     Any,
+    Optional,
     Tuple,
     Union,
 )
 
 
-seconds = int
+seconds = float
 
 
-class TimeSpanABC(ABC):
-    @abstractmethod
-    def __init__(self):
-        pass
+class StaticTimeSpanABC(ABC):
+    start: Optional[datetime] = None
+    end: Optional[datetime] = None
 
-    start_time: datetime = None
-    end_time: datetime = None
+    @classmethod
+    def __subclasshook__(cls, subclass):
+        return (
+            hasattr(subclass, 'start') and
+            hasattr(subclass, 'end')
+        )
 
+    def __str__(self):
+        return f'[{self.start!s} ... {self.end!s}]'
+
+
+class Instrumented_StaticTimeSpanABC(StaticTimeSpanABC):
     @abstractmethod
     def __bool__(self) -> bool:
         pass
     
     @abstractmethod
-    def __eq__(self, other: object) -> bool:
+    def __hash__(self) -> int:
         pass
 
     @abstractmethod
-    def __lt__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         pass
+
+    @abstractmethod
+    def __lt__(self, other: StaticTimeSpanABC) -> bool:
+        """TimeSpan with no start is considered to be
+        infinitely far in the future, so it's never less than any other one
+        """
+
+    @abstractmethod
+    def __gt__(self, other: StaticTimeSpanABC) -> bool:
+        """TimeSpan with no start is considered to be
+        infinitely far in the future, so it's always greater than any other one
+        """
 
     @abstractmethod
     def __iter__(self):
-        """Used for unpacking with * """
-
-
-class InnertTimeSpanABC(ABC):
-    start_time: datetime = None
-    end_time: datetime = None
+        """Used for unpacking"""
 
 
 class PeriodicTimePointABC(ABC):
     @abstractmethod
-    def get_next(self, moment: datetime) -> Union[datetime, None]:
-        """return value must be greater than <moment>"""
+    def get_next(self, moment: datetime) -> Optional[datetime]:
+        """Return value must be greater than ``moment``"""
 
 
 class PeriodicTimeSpanABC(ABC):
@@ -57,23 +73,21 @@ class PeriodicTimeSpanABC(ABC):
         pass
 
     @abstractmethod
-    def get_current(self, moment: datetime) -> TimeSpanABC:
-        """returns current TimeSpan or falsy TimeSpan"""
+    def get_current(self, moment: datetime) -> Instrumented_StaticTimeSpanABC:
+        """Returns current StaticTimeSpan or falsy StaticTimeSpan"""
 
     @abstractmethod
-    def get_next(self, moment: datetime) -> TimeSpanABC:
-        """
-        returns next period's TimeSpan or falsy TimeSpan;
-        return value start time must be greater than <moment>
+    def get_next(self, moment: datetime) -> Instrumented_StaticTimeSpanABC:
+        """Returns next period's ``StaticTimeSpan`` or falsy ``StaticTimeSpan``;
+        Return value start time must be greater than ``moment``
         """
 
     @abstractmethod
     def get_current_or_next(
         self, moment: datetime, *, return_is_current: bool = False
-    ) -> Union[TimeSpanABC, Tuple[TimeSpanABC, bool]]:
-        """
-        returns current TimeSpan;
-        if that is falsy returns next period's TimeSpan which may be falsy too
+    ) -> Union[Instrumented_StaticTimeSpanABC, Tuple[Instrumented_StaticTimeSpanABC, Optional[bool]]]:
+        """Returns current ``StaticTimeSpan``;
+        If that is falsy returns next period's ``StaticTimeSpan`` which may be falsy too
         """
 
 

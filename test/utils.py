@@ -6,7 +6,7 @@ from schedpack import (
     PeriodicActivityWithExtraConditions,
 )
 from schedpack.abc import (
-    TimeSpanABC,
+    Instrumented_StaticTimeSpanABC,
     PeriodicTimePointABC,
 )
 
@@ -37,11 +37,11 @@ def get_week_number_in_month(date_: date):
         if date_.day in week:
             return i + 1
 
-def odd_week(span: TimeSpanABC):
-    return get_week_number_in_month(span.start_time.date()) % 2 == 1
+def odd_week(span: Instrumented_StaticTimeSpanABC):
+    return get_week_number_in_month(span.start.date()) % 2 == 1
 
-def even_week(span: TimeSpanABC):
-    return get_week_number_in_month(span.start_time.date()) % 2 == 0
+def even_week(span: Instrumented_StaticTimeSpanABC):
+    return get_week_number_in_month(span.start.date()) % 2 == 0
 
 def impossible_condition(*args, **kwargs):
     return False

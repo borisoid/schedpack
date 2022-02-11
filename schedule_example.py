@@ -9,7 +9,7 @@ from schedpack import (
     ManualSchedule,
 )
 from schedpack.abc import (
-    TimeSpanABC,
+    Instrumented_StaticTimeSpanABC,
 )
 
 
@@ -63,15 +63,15 @@ def get_week_number(
     return (week_count_starting_from_base_week + base_day_week_number) % week_count
 
 
-def week_1(span: TimeSpanABC):
+def week_1(span: Instrumented_StaticTimeSpanABC):
     return get_week_number(
-        today=span.start_time, base_day=base_day, base_day_week_number=base_day_week_number,
+        today=span.start, base_day=base_day, base_day_week_number=base_day_week_number,
         week_count=week_count
     ) == 0
 
-def week_2(span: TimeSpanABC):
+def week_2(span: Instrumented_StaticTimeSpanABC):
     return get_week_number(
-        today=span.start_time, base_day=base_day, base_day_week_number=base_day_week_number,
+        today=span.start, base_day=base_day, base_day_week_number=base_day_week_number,
         week_count=week_count
     ) == 1
 
