@@ -203,9 +203,9 @@ class ManualSchedule:
             return ()
         soonest_span = min(activity__next__s, key=lambda a: a[1])[1]
         return () if not soonest_span else tuple(
-            ResolvedActivity(a[0].payload, *a[1])
-            for a in activity__next__s
-            if a[1].start == soonest_span.start
+            ResolvedActivity(activity.payload, *span)
+            for activity, span in activity__next__s
+            if span.start == soonest_span.start
         )
 
     def _activity__next__s(
@@ -219,9 +219,9 @@ class ManualSchedule:
     def get_current(self, moment: datetime) -> Tuple[ResolvedActivity]:
         activity__current__s = self._activity__current__s(moment)
         return tuple(
-            ResolvedActivity(a[0].payload, *a[1])
-            for a in activity__current__s
-            if a[1]  # if current
+            ResolvedActivity(activity.payload, *span)
+            for activity, span in activity__current__s
+            if span  # if is current
         )
 
     def _activity__current__s(
@@ -240,18 +240,18 @@ class ManualSchedule:
             return ((), None) if return_is_current else ()
         
         current_s = tuple(
-            ResolvedActivity(a[0].payload, *a[1])
-            for a in activity__current_or_next__ongoing__s
-            if a[2]  # if is current
+            ResolvedActivity(activity.payload, *span)
+            for activity, span, ongoing in activity__current_or_next__ongoing__s
+            if ongoing
         )
         if current_s:
             return (current_s, True) if return_is_current else current_s
 
         soonest_span = min(activity__current_or_next__ongoing__s, key=lambda a: a[1])[1]
         next_s = tuple(
-            ResolvedActivity(a[0].payload, *a[1])
-            for a in activity__current_or_next__ongoing__s
-            if a[2] == False and a[1].start == soonest_span.start
+            ResolvedActivity(activity.payload, *span)
+            for activity, span, ongoing in activity__current_or_next__ongoing__s
+            if ongoing == False and span.start == soonest_span.start
         )
         if next_s:
             return (next_s, False) if return_is_current else next_s
