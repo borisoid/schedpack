@@ -65,9 +65,6 @@ class Instrumented_StaticTimeSpan(TimeSpanInitMixin, Instrumented_StaticTimeSpan
         self_start, other_start = self.start, other.start
         return not self_start or (other_start and other_start < self_start)
 
-    def __iter__(self):
-        return iter((self.start, self.end))
-
 
 class PeriodicTimeSpan(PeriodicTimeSpanABC):
     def __init__(self, period_engine: PeriodicTimePointABC, duration: seconds):
@@ -199,9 +196,9 @@ class ManualSchedule:
         activity__next__s = self._activity__next__s(moment)
         if not activity__next__s:
             return ()
-        soonest_span = min(activity__next__s, key=lambda a: a[1])[1]
+        soonest_span = min(map(lambda an: an[1], activity__next__s))
         return () if not soonest_span else tuple(
-            ResolvedActivity(activity.payload, *span)
+            ResolvedActivity(activity.payload, span.start, span.end)
             for activity, span in activity__next__s
             if span.start == soonest_span.start
         )
@@ -218,7 +215,7 @@ class ManualSchedule:
     def get_current(self, moment: datetime) -> Tuple[ResolvedActivity]:
         activity__current__s = self._activity__current__s(moment)
         return tuple(
-            ResolvedActivity(activity.payload, *span)
+            ResolvedActivity(activity.payload, span.start, span.end)
             for activity, span in activity__current__s
             if span  # if is current
         )
@@ -240,16 +237,16 @@ class ManualSchedule:
             return ((), None) if return_is_current else ()
         
         current_s = tuple(
-            ResolvedActivity(activity.payload, *span)
+            ResolvedActivity(activity.payload, span.start, span.end)
             for activity, span, ongoing in activity__current_or_next__ongoing__s
             if ongoing
         )
         if current_s:
             return (current_s, True) if return_is_current else current_s
 
-        soonest_span = min(activity__current_or_next__ongoing__s, key=lambda a: a[1])[1]
+        soonest_span = min(map(lambda acono: acono[1], activity__current_or_next__ongoing__s))
         next_s = tuple(
-            ResolvedActivity(activity.payload, *span)
+            ResolvedActivity(activity.payload, span.start, span.end)
             for activity, span, ongoing in activity__current_or_next__ongoing__s
             if ongoing == False and span.start == soonest_span.start
         )
@@ -262,7 +259,7 @@ class ManualSchedule:
         self, moment: datetime
     ) -> Tuple[Tuple[PeriodicActivityABC, Instrumented_StaticTimeSpanABC, bool]]:
         """Return ``((<activity>, <current or next time span>, <is it ongoing>), ...)``"""
-        return tuple(map(
-            lambda a: (a, *a.get_current_or_next(moment, return_is_current=True)),
-            self.activities
-        ))
+        def mapper(activity: PeriodicActivityABC):
+            span, ongoing = activity.get_current_or_next(moment, return_is_current=True)
+            return (activity, span, ongoing)
+        return tuple(map(mapper, self.activities))

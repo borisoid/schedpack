@@ -56,10 +56,6 @@ class Instrumented_StaticTimeSpanABC(StaticTimeSpanABC):
         infinitely far in the future, so it's always greater than any other one
         """
 
-    @abstractmethod
-    def __iter__(self):
-        """Used for unpacking"""
-
 
 class PeriodicTimePointABC(ABC):
     @abstractmethod
