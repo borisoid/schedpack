@@ -74,11 +74,12 @@ class PeriodicTimeSpanABC(ABC):
 
     @abstractmethod
     def get_current(self, moment: datetime) -> Instrumented_StaticTimeSpanABC:
-        """Returns current StaticTimeSpan or falsy StaticTimeSpan"""
+        """Returns TimeSpan that either contains ``moment`` or is falsy"""
 
     @abstractmethod
     def get_next(self, moment: datetime) -> Instrumented_StaticTimeSpanABC:
-        """Returns next period's ``StaticTimeSpan`` or falsy ``StaticTimeSpan``;
+        """Returns the earliest TimeSpan that starts after ``moment``;
+        Returned TimeSpan may be falsy if there is no next period;
         Return value start time must be greater than ``moment``
         """
 
@@ -86,8 +87,10 @@ class PeriodicTimeSpanABC(ABC):
     def get_current_or_next(
         self, moment: datetime, *, return_is_current: bool = False
     ) -> Union[Instrumented_StaticTimeSpanABC, Tuple[Instrumented_StaticTimeSpanABC, Optional[bool]]]:
-        """Returns current ``StaticTimeSpan``;
-        If that is falsy returns next period's ``StaticTimeSpan`` which may be falsy too
+        """Tries to return TimeSpan that contains ``moment``;
+        If that is falsy (which means there is no ongoing period),
+        returns the earliest TimeSpan that starts after ``moment`` which may be falsy too;
+        Falsy TimeSpan return value means there is no next period as well
         """
 
 

@@ -94,12 +94,10 @@ class PeriodicTimeSpan(PeriodicTimeSpanABC):
     def get_current_or_next(
         self, moment: datetime, *, return_is_current: bool = False
     ) -> Union[Instrumented_StaticTimeSpanABC, Tuple[Instrumented_StaticTimeSpanABC, Optional[bool]]]:
-        span = self.get_current(moment)
-        if span:
+        if span := self.get_current(moment):
             return (span, True) if return_is_current else span
 
-        span = self.get_next(moment)
-        if span:
+        if span := self.get_next(moment):
             return (span, False) if return_is_current else span
 
         span = Instrumented_StaticTimeSpan()
@@ -195,7 +193,7 @@ class ResolvedActivity(StaticTimeSpanABC):
 
 class ManualSchedule:
     def __init__(self, activities: Iterable[PeriodicActivityABC]):
-        self.activities = activities
+        self.activities = tuple(activities)
 
     def get_next(self, moment: datetime) -> Tuple[ResolvedActivity]:
         activity__next__s = self._activity__next__s(moment)
@@ -211,6 +209,7 @@ class ManualSchedule:
     def _activity__next__s(
         self, moment: datetime
     ) -> Tuple[Tuple[PeriodicActivityABC, Instrumented_StaticTimeSpanABC]]:
+        """Return ``((<activity>, <next time span>), ...)``"""
         return tuple(map(
             lambda a: (a, a.get_next(moment)),
             self.activities
@@ -227,6 +226,7 @@ class ManualSchedule:
     def _activity__current__s(
         self, moment: datetime
     ) -> Tuple[Tuple[PeriodicActivityABC, Instrumented_StaticTimeSpanABC]]:
+        """Return ``((<activity>, <current time span>), ...)``"""
         return tuple(map(
             lambda a: (a, a.get_current(moment)),
             self.activities
