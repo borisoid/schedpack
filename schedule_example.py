@@ -1,4 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import (
+    datetime,
+    timedelta,
+)
 import time
 
 import arrow
@@ -9,12 +12,13 @@ from schedpack import (
     ManualSchedule,
 )
 from schedpack.abc import (
-    Instrumented_StaticTimeSpanABC,
+    Instrumented_StaticTimeSpan_ABC,
 )
 
 
 def cron(day_of_week, hour_minute):
-    return f'{hour_minute[1]} {hour_minute[0]} * * {day_of_week}'
+    return f"{hour_minute[1]} {hour_minute[0]} * * {day_of_week}"
+
 
 # hour, minute
 c1 = (8, 0)
@@ -25,27 +29,31 @@ CLASS_DURATION = 5700  # seconds   (2*45 + 5 minutes)
 
 
 class SchoolClass(PeriodicActivityWithExtraConditions):
-    def __init__(
-        self, payload, start_cron, extra_conditions=None
-    ):
+    def __init__(self, payload, start_cron, extra_conditions=None):
         super().__init__(
-            payload, CronIterWrapper(start_cron), CLASS_DURATION,
-            extra_conditions=extra_conditions, extra_conditions_any=True
+            payload,
+            CronIterWrapper(start_cron),
+            CLASS_DURATION,
+            extra_conditions=extra_conditions,
+            extra_conditions_any=True,
         )
 
 
-
 # assumed_now = arrow.now('Europe/Moscow').datetime
-assumed_now = arrow.get('2021-07-19T08:35:00', tzinfo='Europe/Moscow').datetime
+assumed_now = arrow.get("2021-07-19T08:35:00", tzinfo="Europe/Moscow").datetime
 
-# week number info ############################################################
-base_day = arrow.get('2021-07-10', tzinfo='Europe/Moscow')
+# week number info {{{
+base_day = arrow.get("2021-07-10", tzinfo="Europe/Moscow")
 base_day_week_number = 1  # keep in mind that first week has number 0
 week_count = 2
-###############################################################################
+# }}} week number info
+
 
 def get_week_number(
-    *, today: datetime, base_day: datetime, base_day_week_number: int,
+    *,
+    today: datetime,
+    base_day: datetime,
+    base_day_week_number: int,
     week_count: int,
 ):
     """
@@ -63,46 +71,54 @@ def get_week_number(
     return (week_count_starting_from_base_week + base_day_week_number) % week_count
 
 
-def week_1(span: Instrumented_StaticTimeSpanABC):
+def week_1(span: Instrumented_StaticTimeSpan_ABC):
     return get_week_number(
-        today=span.start, base_day=base_day, base_day_week_number=base_day_week_number,
-        week_count=week_count
+        today=span.start,
+        base_day=base_day,
+        base_day_week_number=base_day_week_number,
+        week_count=week_count,
     ) == 0
 
-def week_2(span: Instrumented_StaticTimeSpanABC):
-    return get_week_number(
-        today=span.start, base_day=base_day, base_day_week_number=base_day_week_number,
-        week_count=week_count
-    ) == 1
 
+def week_2(span: Instrumented_StaticTimeSpan_ABC):
+    return get_week_number(
+        today=span.start,
+        base_day=base_day,
+        base_day_week_number=base_day_week_number,
+        week_count=week_count,
+    ) == 1
 
 
 sched = ManualSchedule(
     [
-        SchoolClass('fizra', cron('mon,thu', c2)),  # mixed
+        SchoolClass("mon,thu c2", cron("mon,thu", c2)),  # mixed
 
-        SchoolClass('bernadeskij', cron('mon', c1), extra_conditions=[week_2]),
-        SchoolClass('smelov_1', cron('mon', c3)),
+        SchoolClass("mon c1 w2", cron("mon", c1), extra_conditions=[week_2]),
+        SchoolClass("mon c3", cron("mon", c3)),
 
-        SchoolClass('ne_koresh_lk', cron('tue', c1)),
-        SchoolClass('zhuk', cron('tue', c2)),
-        SchoolClass('smelov_2', cron('tue', c3)),
+        SchoolClass("tue c1", cron("tue", c1)),
+        SchoolClass("tue c2", cron("tue", c2)),
+        SchoolClass("tue c3", cron("tue", c3)),
 
-        SchoolClass('salam_lab', cron('wed', c1), extra_conditions=[week_1]),
-        SchoolClass('mops_lab', cron('wed', c1), extra_conditions=[week_2]),
-        SchoolClass('mops_lk', cron('wed', c2)),
-        SchoolClass('birula_1', cron('wed', c3)),
+        SchoolClass("wed c1 w1", cron("wed", c1), extra_conditions=[week_1]),
+        SchoolClass("wed c1 w2", cron("wed", c1), extra_conditions=[week_2]),
+        SchoolClass("wed c2", cron("wed", c2)),
+        SchoolClass("wed c3", cron("wed", c3)),
 
-        SchoolClass('ne_koresh_lab', cron('thu', c1), extra_conditions=[week_2]),
-        SchoolClass('bernadeskij', cron('thu', c1), extra_conditions=[week_1]),                    
-        SchoolClass('za_shit_ochka_lk (urbanushka)', cron('thu', c3)),
+        SchoolClass("thu c1 w1", cron("thu", c1), extra_conditions=[week_1]),
+        SchoolClass("thu c1 w2", cron("thu", c1), extra_conditions=[week_2]),
+        SchoolClass("thu c3", cron("thu", c3)),
 
-        SchoolClass('ris', cron('fri', c1)),
-        SchoolClass('prog_v_inet', cron('fri', c2)),
-        SchoolClass('za_shit_ochka_lab', cron('fri', c3)),
+        SchoolClass("fri c1", cron("fri", c1)),
+        SchoolClass("fri c2", cron("fri", c2)),
+        SchoolClass("fri c3", cron("fri", c3)),
 
-        SchoolClass('salam_lk', cron('sat', c2)),
-        SchoolClass('ris_lk', cron('sat', c3)),
+        SchoolClass("sat c2", cron("sat", c2)),
+        SchoolClass("sat c3", cron("sat", c3)),
+
+        SchoolClass("sun c11", cron("sun", c1)),  # simultaneous
+        SchoolClass("sun c12", cron("sun", c1)),
+        SchoolClass("sun c2", cron("sun", c2)),
     ]
 )
 
@@ -117,7 +133,7 @@ class stopwatch:
 
     def __exit__(self, *args, **kwargs):
         self.end = time.perf_counter()
-        print('stopwatch: ', self.end - self.start)
+        print("stopwatch: ", self.end - self.start)
 
 
 with stopwatch():

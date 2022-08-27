@@ -1,7 +1,7 @@
 # Schedpack
 
-This is a slightly modified version of scheduler that i wrote and used for
-my auto-microsoft-teams-class-attender bot during 2020 lockdown
+This is a modified version of scheduler that i wrote and used for
+my auto-class-attender bot during 2020 lockdown
 
 ## Usage example
 
@@ -36,7 +36,10 @@ CLASS_DURATION = 5700  # seconds   (2*45 + 5 minutes)
 
 class SchoolClass(PeriodicActivityWithExtraConditions):
     def __init__(
-        self, payload, start_cron, extra_conditions=None
+        self,
+        payload,
+        start_cron,
+        extra_conditions=None,
     ):
         super().__init__(
             payload,
@@ -58,6 +61,8 @@ def odd_week(span: Instrumented_StaticTimeSpanABC):
 def even_week(span: Instrumented_StaticTimeSpanABC):
     return get_week_number_in_month(span.start.date()) % 2 == 0
 ```
+
+Actual use
 
 ```python
 schedule = ManualSchedule([
@@ -81,12 +86,12 @@ schedule = ManualSchedule([
 
     SchoolClass('fri c1', cron('fri', c1)),
     SchoolClass('fri c2', cron('fri', c2)),
-    SchoolClass('fry c3', cron('fri', c3)),
+    SchoolClass('fri c3', cron('fri', c3)),
 
     SchoolClass('sat c2', cron('sat', c2)),
     SchoolClass('sat c3', cron('sat', c3)),
 
-    SchoolClass('sun c11', cron('sun', c1)),  # simultaneous
+    SchoolClass('sun c11', cron('sun', c1)),  # simultaneous (just an example)
     SchoolClass('sun c12', cron('sun', c1)),
     SchoolClass('sun c2', cron('sun', c2)),
 ])
@@ -100,22 +105,29 @@ schedule = ManualSchedule([
 
 moment = arrow.get('2021-07-01T07:30:00', tzinfo='Europe/Moscow').datetime
 activities = schedule.get_next(moment)
-print(activities)  # (<thu c1 ow: [2021-07-01 08:00:00+03:00 ... 2021-07-01 09:35:00+03:00]>,)
+print(activities)
+# (
+#   ResolvedActivity(payload='thu c1 ow', start=<2021-07-01 08:00:00+03:00>, end=<2021-07-01 09:35:00+03:00>),
+# )
 
 moment = arrow.get('2021-07-01T08:00:00', tzinfo='Europe/Moscow').datetime
 activities = schedule.get_current(moment)
-print(activities)  # (<thu c1 ow: [2021-07-01 08:00:00+03:00 ... 2021-07-01 09:35:00+03:00]>,)
+print(activities)
+# (
+#   ResolvedActivity(payload='thu c1 ow', start=<2021-07-01 08:00:00+03:00>, end=<2021-07-01 09:35:00+03:00>,
+# )
 
 moment = arrow.get('2021-07-02T09:35:00', tzinfo='Europe/Moscow').datetime
 activities = schedule.get_current(moment)
-print(activities)  # ()
+print(activities)
+# ()
 
 moment = arrow.get('2021-07-04T08:30:00', tzinfo='Europe/Moscow').datetime
 activities = schedule.get_current(moment)
 print(activities)
 # (
-#   <sun c11: [2021-07-04 08:00:00+03:00 ... 2021-07-04 09:35:00+03:00]>,
-#   <sun c12: [2021-07-04 08:00:00+03:00 ... 2021-07-04 09:35:00+03:00]>,
+#   ResolvedActivity(payload='sun c11', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
+#   ResolvedActivity(payload='sun c12', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
 # )
 
 moment = arrow.get('2021-07-04T08:30:00', tzinfo='Europe/Moscow').datetime
@@ -124,8 +136,8 @@ activities, is_current = schedule.get_current_or_next(
 )
 print(activities, is_current)
 # (
-#   <sun c11: [2021-07-04 08:00:00+03:00 ... 2021-07-04 09:35:00+03:00]>,
-#   <sun c12: [2021-07-04 08:00:00+03:00 ... 2021-07-04 09:35:00+03:00]>,
+#   ResolvedActivity(payload='sun c11', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
+#   ResolvedActivity(payload='sun c12', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
 # )
 # True
 
@@ -135,8 +147,8 @@ activities, is_current = schedule.get_current_or_next(
 )
 print(activities, is_current)
 # (
-#   <sun c11: [2021-07-04 08:00:00+03:00 ... 2021-07-04 09:35:00+03:00]>,
-#   <sun c12: [2021-07-04 08:00:00+03:00 ... 2021-07-04 09:35:00+03:00]>,
+#   ResolvedActivity(payload='sun c11', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
+#   ResolvedActivity(payload='sun c12', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
 # )
 # False
 ```

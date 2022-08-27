@@ -39,7 +39,7 @@ class TestFilledScheduleWithExtraConditions(unittest.TestCase):
 
             SchoolClass('fri c1', cron('fri', c1)),
             SchoolClass('fri c2', cron('fri', c2)),
-            SchoolClass('fry c3', cron('fri', c3)),
+            SchoolClass('fri c3', cron('fri', c3)),
 
             SchoolClass('sat c2', cron('sat', c2)),
             SchoolClass('sat c3', cron('sat', c3)),
@@ -370,7 +370,7 @@ class TestScheduleWithImpossibleExtraConditions(unittest.TestCase):
             SchoolClass('fri c11', cron('fri', c1), extra_conditions=[impossible_condition]),
             SchoolClass('fri c12', cron('fri', c1)),
             SchoolClass('fri c2', cron('fri', c2)),
-            SchoolClass('fry c3', cron('fri', c3)),
+            SchoolClass('fri c3', cron('fri', c3)),
 
             SchoolClass('sat c2', cron('sat', c2)),
             SchoolClass('sat c3', cron('sat', c3)),
@@ -399,7 +399,7 @@ class TestScheduleWithImpossibleExtraConditions(unittest.TestCase):
             arrow.get('2021-07-02T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
-    def test_schedule_get_next__when_has_impossible_extra_condition(self):
+    def test_schedule_get_next__when_next_has_impossible_extra_condition(self):
         moment = arrow.get('2021-07-01T07:30:00', tzinfo='Europe/Moscow').datetime
 
         activities = self.schedule.get_next(moment)
