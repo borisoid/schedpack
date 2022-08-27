@@ -14,12 +14,12 @@ from typing import (
 )
 
 from .abc import (
-    seconds,
     Instrumented_StaticTimeSpan_ABC,
-    StaticTimeSpan_ABC,
+    PeriodicActivity_ABC,
     PeriodicTimePoint_ABC,
     PeriodicTimeSpan_ABC,
-    PeriodicActivity_ABC,
+    StaticTimeSpan_ABC,
+    seconds,
 )
 
 

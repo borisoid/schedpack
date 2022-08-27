@@ -3,6 +3,7 @@ import unittest
 import arrow
 
 from schedpack import ManualSchedule
+
 from .utils import (
     NeverStartingPeriodicActivity,
     SchoolClass,
@@ -11,8 +12,8 @@ from .utils import (
     c3,
     cron,
     even_week,
-    odd_week,
     impossible_condition,
+    odd_week,
 )
 
 
