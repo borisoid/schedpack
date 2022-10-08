@@ -10,6 +10,7 @@ croniter = "*"
 mypy = "*"
 coverage = {extras = ["toml"], version = "*"}
 arrow = "*"
+types-croniter = "*"
 
 [requires]
 python_version = "3.8"
