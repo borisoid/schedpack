@@ -11,7 +11,7 @@ from schedpack import (
     PeriodicActivityWithExtraConditions,
     ManualSchedule,
 )
-from schedpack.abc import (
+from schedpack.abstraction.abc import (
     Instrumented_StaticTimeSpan_ABC,
 )
 

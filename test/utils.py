@@ -8,7 +8,7 @@ from schedpack import (
     CronIterWrapper,
     PeriodicActivityWithExtraConditions,
 )
-from schedpack.abc import (
+from schedpack.abstraction.abc import (
     Instrumented_StaticTimeSpan_ABC,
     PeriodicTimePoint_ABC,
 )

@@ -9,7 +9,7 @@ from croniter import (
     croniter,
 )
 
-from .abc import (
+from .abstraction.abc import (
     PeriodicTimePoint_ABC,
 )
 

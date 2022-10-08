@@ -432,7 +432,7 @@ class TestScheduleWithImpossibleExtraConditions(unittest.TestCase):
             arrow.get('2021-07-02T09:35:00', tzinfo='Europe/Moscow').datetime
         )
 
-    def test_schedule_get_current_or_next__when_has_impossible_extra_condition(self):
+    def test_schedule_get_current_or_next__when_current_has_impossible_extra_condition(self):
         moment = arrow.get('2021-07-02T08:30:00', tzinfo='Europe/Moscow').datetime
 
         activities, is_current = self.schedule.get_current_or_next(
@@ -440,6 +440,25 @@ class TestScheduleWithImpossibleExtraConditions(unittest.TestCase):
         )
 
         self.assertTrue(is_current)
+        self.assertEqual(len(activities), 1)
+        self.assertEqual(activities[0].payload, 'fri c12')
+        self.assertEqual(
+            activities[0].start,
+            arrow.get('2021-07-02T08:00:00', tzinfo='Europe/Moscow').datetime
+        )
+        self.assertEqual(
+            activities[0].end,
+            arrow.get('2021-07-02T09:35:00', tzinfo='Europe/Moscow').datetime
+        )
+
+    def test_schedule_get_current_or_next__when_next_has_impossible_extra_condition(self):
+        moment = arrow.get('2021-07-02T07:30:00', tzinfo='Europe/Moscow').datetime
+
+        activities, is_current = self.schedule.get_current_or_next(
+            moment, return_is_current=True
+        )
+
+        self.assertFalse(is_current)
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].payload, 'fri c12')
         self.assertEqual(

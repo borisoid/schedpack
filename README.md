@@ -8,8 +8,11 @@ my auto-class-attender bot during 2020 lockdown
 A little set up
 
 ```python
+from datetime import (
+    date,
+    datetime,
+)
 import calendar
-from datetime import date, datetime
 
 import arrow
 
@@ -17,7 +20,7 @@ from schedpack import (
     CronIterWrapper,
     PeriodicActivityWithExtraConditions,
 )
-from schedpack.abc import (
+from schedpack.abstractions.abc import (
     Instrumented_StaticTimeSpanABC,
     PeriodicTimePointABC,
 )

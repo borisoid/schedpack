@@ -1,5 +1,10 @@
-from setuptools import setup
-from pathlib import Path
+from pathlib import (
+    Path,
+)
+
+from setuptools import (
+    setup,
+)
 
 
 README = Path("README.md").read_text()

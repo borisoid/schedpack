@@ -1,0 +1,4 @@
+[tool.coverage.run]
+source = [
+    "schedpack",
+]
