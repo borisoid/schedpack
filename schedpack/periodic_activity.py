@@ -14,7 +14,7 @@ from .abstraction.types import (
 )
 from .periodic_time_span import (
     PeriodicTimeSpan,
-    PeriodicTimeSpanWithExtraConditions,
+    PeriodicTimeSpan_WithExtraConditions,
 )
 
 
@@ -32,8 +32,8 @@ class PeriodicActivity(
         self.payload = payload
 
 
-class PeriodicActivityWithExtraConditions(
-    PeriodicTimeSpanWithExtraConditions,
+class PeriodicActivity_WithExtraConditions(
+    PeriodicTimeSpan_WithExtraConditions,
     PeriodicActivity_ABC,
 ):
     def __init__(

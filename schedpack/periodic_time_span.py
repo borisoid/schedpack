@@ -24,7 +24,7 @@ from .abstraction.non_existent_time_span import (
 from .abstraction.types import (
     seconds,
 )
-from .static_time_span import (
+from .instrumented_static_time_span import (
     Instrumented_StaticTimeSpan_Factory,
 )
 from .utils.periodic_time_span import (
@@ -132,7 +132,7 @@ class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
     # }}} get_current_or_next
 
 
-class PeriodicTimeSpanWithExtraConditions(PeriodicTimeSpan):
+class PeriodicTimeSpan_WithExtraConditions(PeriodicTimeSpan):
 
     DEFAULT_EXTRA_CONDITIONS_MAX_FAILS = 20
 

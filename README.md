@@ -18,11 +18,11 @@ import arrow
 
 from schedpack import (
     CronIterWrapper,
-    PeriodicActivityWithExtraConditions,
+    PeriodicActivity_WithExtraConditions,
 )
 from schedpack.abstractions.abc import (
-    Instrumented_StaticTimeSpanABC,
-    PeriodicTimePointABC,
+    Instrumented_StaticTimeSpan_ABC,
+    PeriodicTimePoint_ABC,
 )
 
 
@@ -37,7 +37,7 @@ c3 = (11, 40)
 CLASS_DURATION = 5700  # seconds   (2*45 + 5 minutes)
 
 
-class SchoolClass(PeriodicActivityWithExtraConditions):
+class SchoolClass(PeriodicActivity_WithExtraConditions):
     def __init__(
         self,
         payload,

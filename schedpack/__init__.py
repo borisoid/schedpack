@@ -1,20 +1,20 @@
+from .instrumented_static_time_span import (
+    Instrumented_StaticTimeSpan,
+)
 from .periodic_activity import (
     PeriodicActivity,
-    PeriodicActivityWithExtraConditions,
+    PeriodicActivity_WithExtraConditions,
 )
 from .periodic_time_point import (
     CronIterWrapper,
 )
 from .periodic_time_span import (
     PeriodicTimeSpan,
-    PeriodicTimeSpanWithExtraConditions,
+    PeriodicTimeSpan_WithExtraConditions,
 )
 from .resolved_activity import (
     ResolvedActivity,
 )
 from .schedule import (
     ManualSchedule,
-)
-from .static_time_span import (
-    Instrumented_StaticTimeSpan,
 )
