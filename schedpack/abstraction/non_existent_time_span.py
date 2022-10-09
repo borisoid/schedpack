@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class NonExistentTimeSpanMeta(type):
     pass
-  
+
 
 class NonExistentTimeSpan(metaclass=NonExistentTimeSpanMeta):
     def __init_subclass__(cls) -> None:
