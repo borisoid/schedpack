@@ -12,9 +12,9 @@ from .periodic_time_span import (
     PeriodicTimeSpan,
     PeriodicTimeSpan_WithExtraConditions,
 )
-from .resolved_activity import (
-    ResolvedActivity,
-)
 from .schedule import (
     ManualSchedule,
+)
+from .static_activity import (
+    StaticActivity,
 )

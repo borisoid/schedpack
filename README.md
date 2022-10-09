@@ -1,6 +1,6 @@
 # Schedpack
 
-This is a modified version of scheduler that i wrote and used for
+This is a modified version of scheduler that I wrote and used for
 my auto-class-attender bot during 2020 lockdown
 
 ## Usage example
@@ -42,12 +42,13 @@ class SchoolClass(PeriodicActivity_WithExtraConditions):
         self,
         payload,
         start_cron,
+        *,
         extra_conditions=None,
     ):
         super().__init__(
-            payload,
-            CronIterWrapper(start_cron),
-            CLASS_DURATION,
+            payload=payload,
+            periodic_time_point=CronIterWrapper(start_cron),
+            duration=CLASS_DURATION,
             extra_conditions=extra_conditions,
             extra_conditions_any=True
         )
@@ -110,14 +111,14 @@ moment = arrow.get('2021-07-01T07:30:00', tzinfo='Europe/Moscow').datetime
 activities = schedule.get_next(moment)
 print(activities)
 # (
-#   ResolvedActivity(payload='thu c1 ow', start=<2021-07-01 08:00:00+03:00>, end=<2021-07-01 09:35:00+03:00>),
+#   StaticActivity(payload='thu c1 ow', start=<2021-07-01 08:00:00+03:00>, end=<2021-07-01 09:35:00+03:00>),
 # )
 
 moment = arrow.get('2021-07-01T08:00:00', tzinfo='Europe/Moscow').datetime
 activities = schedule.get_current(moment)
 print(activities)
 # (
-#   ResolvedActivity(payload='thu c1 ow', start=<2021-07-01 08:00:00+03:00>, end=<2021-07-01 09:35:00+03:00>,
+#   StaticActivity(payload='thu c1 ow', start=<2021-07-01 08:00:00+03:00>, end=<2021-07-01 09:35:00+03:00>,
 # )
 
 moment = arrow.get('2021-07-02T09:35:00', tzinfo='Europe/Moscow').datetime
@@ -129,8 +130,8 @@ moment = arrow.get('2021-07-04T08:30:00', tzinfo='Europe/Moscow').datetime
 activities = schedule.get_current(moment)
 print(activities)
 # (
-#   ResolvedActivity(payload='sun c11', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
-#   ResolvedActivity(payload='sun c12', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
+#   StaticActivity(payload='sun c11', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
+#   StaticActivity(payload='sun c12', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
 # )
 
 moment = arrow.get('2021-07-04T08:30:00', tzinfo='Europe/Moscow').datetime
@@ -139,8 +140,8 @@ activities, is_current = schedule.get_current_or_next(
 )
 print(activities, is_current)
 # (
-#   ResolvedActivity(payload='sun c11', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
-#   ResolvedActivity(payload='sun c12', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
+#   StaticActivity(payload='sun c11', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
+#   StaticActivity(payload='sun c12', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
 # )
 # True
 
@@ -150,8 +151,8 @@ activities, is_current = schedule.get_current_or_next(
 )
 print(activities, is_current)
 # (
-#   ResolvedActivity(payload='sun c11', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
-#   ResolvedActivity(payload='sun c12', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
+#   StaticActivity(payload='sun c11', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
+#   StaticActivity(payload='sun c12', start=<2021-07-04 08:00:00+03:00>, end=<2021-07-04 09:35:00+03:00>),
 # )
 # False
 ```

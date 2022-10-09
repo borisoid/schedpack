@@ -25,11 +25,15 @@ class PeriodicActivity(
 ):
     def __init__(
         self,
+        *,
         payload: Any,
-        period_engine: PeriodicTimePoint_ABC,
+        periodic_time_point: PeriodicTimePoint_ABC,
         duration: seconds,
     ):
-        super().__init__(period_engine, duration)
+        super().__init__(
+            periodic_time_point=periodic_time_point,
+            duration=duration,
+        )
         self.payload = payload
 
 
@@ -39,8 +43,9 @@ class PeriodicActivity_WithExtraConditions(
 ):
     def __init__(
         self,
+        *,
         payload: Any,
-        period_engine: PeriodicTimePoint_ABC,
+        periodic_time_point: PeriodicTimePoint_ABC,
         duration: seconds,
         extra_conditions: Optional[Iterable[
             Callable[[Instrumented_StaticTimeSpan_ABC], bool]
@@ -48,9 +53,9 @@ class PeriodicActivity_WithExtraConditions(
         extra_conditions_any: bool = False,
     ):
         super().__init__(
-            period_engine,
-            duration,
-            extra_conditions,
-            extra_conditions_any,
+            periodic_time_point=periodic_time_point,
+            duration=duration,
+            extra_conditions=extra_conditions,
+            extra_conditions_any=extra_conditions_any,
         )
         self.payload = payload

@@ -35,10 +35,11 @@ from .utils.periodic_time_span import (
 class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
     def __init__(
         self,
-        period_engine: PeriodicTimePoint_ABC,
+        *,
+        periodic_time_point: PeriodicTimePoint_ABC,
         duration: seconds,
     ):
-        self.period_engine = period_engine
+        self.periodic_time_point = periodic_time_point
         self.duration = duration
 
     def is_ongoing(self, moment: datetime) -> bool:
@@ -48,8 +49,8 @@ class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
         self,
         moment: datetime,
     ) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
-        next = self.period_engine.get_next(moment)
-        current = self.period_engine.get_next(
+        next = self.periodic_time_point.get_next(moment)
+        current = self.periodic_time_point.get_next(
             moment - timedelta(seconds=self.duration)
         )
         if current and ((not next) or (next > current)):
@@ -63,7 +64,7 @@ class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
         self,
         moment: datetime,
     ) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
-        if start := self.period_engine.get_next(moment):
+        if start := self.periodic_time_point.get_next(moment):
             return Instrumented_StaticTimeSpan_Factory.create(
                 start=start,
                 duration=self.duration,
@@ -138,14 +139,18 @@ class PeriodicTimeSpan_WithExtraConditions(PeriodicTimeSpan):
 
     def __init__(
         self,
-        period_engine: PeriodicTimePoint_ABC,
+        *,
+        periodic_time_point: PeriodicTimePoint_ABC,
         duration: seconds,
         extra_conditions: Optional[Iterable[
             Callable[[Instrumented_StaticTimeSpan_ABC], bool]
         ]] = None,
         extra_conditions_any: bool = False,
     ):
-        super().__init__(period_engine, duration)
+        super().__init__(
+            periodic_time_point=periodic_time_point,
+            duration=duration,
+        )
         self.extra_conditions = extra_conditions
         self.extra_conditions_any = extra_conditions_any
 
@@ -177,6 +182,7 @@ class PeriodicTimeSpan_WithExtraConditions(PeriodicTimeSpan):
     def get_next(
         self,
         moment: datetime,
+        *,
         extra_conditions_max_fails: Union[
             Literal[ExtraConditionsMaxFails.NOT_SPECIFIED],
             int,

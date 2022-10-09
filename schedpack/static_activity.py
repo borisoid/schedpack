@@ -10,13 +10,13 @@ from .abstraction.abc import (
 )
 
 
-class ResolvedActivity(StaticTimeSpan_ABC):
+class StaticActivity(StaticTimeSpan_ABC):
     """An activity with known start/end time"""
 
     def __init__(
         self,
-        payload: Any,
         *,
+        payload: Any,
         start: datetime,
         end: datetime,
     ):

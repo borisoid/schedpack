@@ -29,9 +29,9 @@ CLASS_DURATION = 5700  # seconds   (2*45 + 5 minutes)
 class SchoolClass(PeriodicActivity_WithExtraConditions):
     def __init__(self, payload, start_cron, extra_conditions=None):
         super().__init__(
-            payload,
-            CronIterWrapper(start_cron),
-            CLASS_DURATION,
+            payload=payload,
+            periodic_time_point=CronIterWrapper(start_cron),
+            duration=CLASS_DURATION,
             extra_conditions=extra_conditions,
             extra_conditions_any=True,
         )
@@ -64,9 +64,9 @@ class InfinitelyFarPeriodicTimePoint(PeriodicTimePoint_ABC):
 class NeverStartingPeriodicActivity(PeriodicActivity_WithExtraConditions):
     def __init__(self, payload):
         super().__init__(
-            payload,
-            InfinitelyFarPeriodicTimePoint(),
-            0,
+            payload=payload,
+            periodic_time_point=InfinitelyFarPeriodicTimePoint(),
+            duration=0,
             extra_conditions=(),
             extra_conditions_any=True,
         )

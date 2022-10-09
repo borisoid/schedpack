@@ -17,8 +17,8 @@ from .abstraction.abc import (
 from .abstraction.non_existent_time_span import (
     NonExistentTimeSpan,
 )
-from .resolved_activity import (
-    ResolvedActivity,
+from .static_activity import (
+    StaticActivity,
 )
 
 
@@ -29,9 +29,13 @@ class ManualSchedule:
     def get_current(
         self,
         moment: datetime,
-    ) -> Tuple[ResolvedActivity, ...]:
+    ) -> Tuple[StaticActivity, ...]:
         return tuple(
-            ResolvedActivity(activity.payload, start=span.start, end=span.end)
+            StaticActivity(
+                payload=activity.payload,
+                start=span.start,
+                end=span.end,
+            )
             for activity, span
             in self._activity__current__s(moment)
             if not isinstance(span, NonExistentTimeSpan)
@@ -55,7 +59,7 @@ class ManualSchedule:
     def get_next(
         self,
         moment: datetime,
-    ) -> Tuple[ResolvedActivity, ...]:
+    ) -> Tuple[StaticActivity, ...]:
         activity__next__s = tuple(self._activity__next__s(moment))
         if not activity__next__s:
             return ()
@@ -63,7 +67,11 @@ class ManualSchedule:
         if isinstance(soonest_span, NonExistentTimeSpan):
             return ()
         return tuple(
-            ResolvedActivity(activity.payload, start=span.start, end=span.end)
+            StaticActivity(
+                payload=activity.payload,
+                start=span.start,
+                end=span.end,
+            )
             for activity, span
             in activity__next__s
             if (
@@ -97,7 +105,7 @@ class ManualSchedule:
         moment: datetime,
         *,
         return_is_current: Literal[False],
-    ) -> Tuple[ResolvedActivity, ...]:
+    ) -> Tuple[StaticActivity, ...]:
         ...
 
     @overload
@@ -106,7 +114,7 @@ class ManualSchedule:
         moment: datetime,
         *,
         return_is_current: Literal[True],
-    ) -> Tuple[Tuple[ResolvedActivity, ...], Optional[bool]]:
+    ) -> Tuple[Tuple[StaticActivity, ...], Optional[bool]]:
         ...
 
     # }}} overloads
@@ -117,8 +125,8 @@ class ManualSchedule:
         *,
         return_is_current: bool = False,
     ) -> Union[
-        Tuple[ResolvedActivity, ...],
-        Tuple[Tuple[ResolvedActivity, ...], Optional[bool]],
+        Tuple[StaticActivity, ...],
+        Tuple[Tuple[StaticActivity, ...], Optional[bool]],
     ]:
         activities = self.get_current(moment)
         if activities:
