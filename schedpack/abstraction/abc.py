@@ -39,15 +39,28 @@ class Instrumented_StaticTimeSpan_ABC(StaticTimeSpan_ABC):
         ...
 
     @abstractmethod
-    def __lt__(self, other: Union["Instrumented_StaticTimeSpan_ABC", NonExistentTimeSpan]) -> bool:
+    def __lt__(
+        self,
+        other: Union[
+            "Instrumented_StaticTimeSpan_ABC",
+            NonExistentTimeSpan,
+        ]
+    ) -> bool:
         """``NonExistentTimeSpan`` is considered to be
-        infinitely far in the future, so it must never be less than any other one
+        infinitely far in the future,
+        so it must never be less than any other one
         """
 
     @abstractmethod
-    def __gt__(self, other: Union["Instrumented_StaticTimeSpan_ABC", NonExistentTimeSpan]) -> bool:
+    def __gt__(
+        self,
+        other: Union[
+            "Instrumented_StaticTimeSpan_ABC",
+            NonExistentTimeSpan,
+        ]) -> bool:
         """``NonExistentTimeSpan`` is considered to be
-        infinitely far in the future, so it must alway be greater than any other one
+        infinitely far in the future,
+        so it must alway be greater than any other one
         """
 
 
@@ -63,17 +76,34 @@ class PeriodicTimeSpan_ABC(ABC):
         ...
 
     @abstractmethod
-    def get_current(self, moment: datetime) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
+    def get_current(
+        self,
+        moment: datetime,
+    ) -> Union[
+        Instrumented_StaticTimeSpan_ABC,
+        NonExistentTimeSpan,
+    ]:
         """Must return ``Instrumented_StaticTimeSpan_ABC`` that
         contains ``moment``(``[)``);
         Must return ``NonExistentTimeSpan`` if that cannot be found;
         """
 
     @abstractmethod
-    def get_next(self, moment: datetime) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
-        """Must return the earliest ``Instrumented_StaticTimeSpan_ABC`` that starts after ``moment``;
-        Returned ``Instrumented_StaticTimeSpan_ABC``'s start time must be greater than ``moment``;
-        Must return ``NonExistentTimeSpan`` if next ``Instrumented_StaticTimeSpan_ABC`` cannot be found;
+    def get_next(
+        self,
+        moment: datetime,
+    ) -> Union[
+        Instrumented_StaticTimeSpan_ABC,
+        NonExistentTimeSpan,
+    ]:
+        """Must return the earliest ``Instrumented_StaticTimeSpan_ABC``
+        that starts after ``moment``;
+
+        Returned ``Instrumented_StaticTimeSpan_ABC``'s start time
+        must be greater than ``moment``;
+
+        Must return ``NonExistentTimeSpan`` if next
+        ``Instrumented_StaticTimeSpan_ABC`` cannot be found;
         """
 
     # get_current_or_next {{{
@@ -87,7 +117,10 @@ class PeriodicTimeSpan_ABC(ABC):
         moment: datetime,
         *,
         return_is_current: Literal[False],
-    ) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
+    ) -> Union[
+        Instrumented_StaticTimeSpan_ABC,
+        NonExistentTimeSpan,
+    ]:
         ...
 
     @overload
@@ -97,7 +130,13 @@ class PeriodicTimeSpan_ABC(ABC):
         moment: datetime,
         *,
         return_is_current: Literal[True],
-    ) -> Tuple[Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan], Optional[bool]]:
+    ) -> Tuple[
+        Union[
+            Instrumented_StaticTimeSpan_ABC,
+            NonExistentTimeSpan,
+        ],
+        Optional[bool],
+    ]:
         ...
 
     # }}} overloads
@@ -109,15 +148,25 @@ class PeriodicTimeSpan_ABC(ABC):
         *,
         return_is_current: bool = False,
     ) -> Union[
-        Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan],
-        Tuple[Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan], Optional[bool]],
+        Union[
+            Instrumented_StaticTimeSpan_ABC,
+            NonExistentTimeSpan,
+        ],
+        Tuple[
+            Union[
+                Instrumented_StaticTimeSpan_ABC,
+                NonExistentTimeSpan,
+            ],
+            Optional[bool],
+        ],
     ]:
         """Must return ``Instrumented_StaticTimeSpan_ABC`` that
         contains ``moment``(``[)``);
         If return_is_current==True, must also return ``True``;
 
-        If ``Instrumented_StaticTimeSpan_ABC`` that contains ``moment``(``[)``) cannot be found,
-        must return the earliest ``Instrumented_StaticTimeSpan_ABC`` that starts after ``moment``;
+        If ``Instrumented_StaticTimeSpan_ABC`` that contains
+        ``moment``(``[)``) cannot be found, must return the earliest
+        ``Instrumented_StaticTimeSpan_ABC`` that starts after ``moment``;
         If return_is_current==True, must also return ``False``;
 
         If no ongoing ``Instrumented_StaticTimeSpan_ABC``

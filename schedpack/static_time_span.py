@@ -80,7 +80,9 @@ class Instrumented_StaticTimeSpan_Factory:
             result.start = end - timedelta(seconds=duration)
             result.end = end
         else:
-            raise ValueError(f"Must specify two of these: start, end, duration")
+            raise ValueError(
+                "Must specify two of these: start, end, duration"
+            )
 
         return result
 
@@ -96,12 +98,18 @@ class Instrumented_StaticTimeSpan(Instrumented_StaticTimeSpan_ABC):
             self.start == other.start and self.end == other.end
         )
 
-    def __lt__(self, other: Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]) -> bool:
+    def __lt__(
+        self,
+        other: Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan],
+    ) -> bool:
         if isinstance(other, NonExistentTimeSpan):
             return True
         return self.start < other.start
 
-    def __gt__(self, other: Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]) -> bool:
+    def __gt__(
+        self,
+        other: Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan],
+    ) -> bool:
         if isinstance(other, NonExistentTimeSpan):
             return False
         return self.start > other.start

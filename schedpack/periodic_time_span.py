@@ -2,10 +2,6 @@ from datetime import (
     datetime,
     timedelta,
 )
-from enum import (
-    Enum,
-    auto,
-)
 from typing import (
     Callable,
     Iterable,
@@ -31,19 +27,31 @@ from .abstraction.types import (
 from .static_time_span import (
     Instrumented_StaticTimeSpan_Factory,
 )
+from .utils.periodic_time_span import (
+    ExtraConditionsMaxFails,
+)
 
 
 class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
-    def __init__(self, period_engine: PeriodicTimePoint_ABC, duration: seconds):
+    def __init__(
+        self,
+        period_engine: PeriodicTimePoint_ABC,
+        duration: seconds,
+    ):
         self.period_engine = period_engine
         self.duration = duration
 
     def is_ongoing(self, moment: datetime) -> bool:
         return self.get_current(moment) is not NON_EXISTENT_TIME_SPAN
 
-    def get_current(self, moment: datetime) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
+    def get_current(
+        self,
+        moment: datetime,
+    ) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
         next = self.period_engine.get_next(moment)
-        current = self.period_engine.get_next(moment - timedelta(seconds=self.duration))
+        current = self.period_engine.get_next(
+            moment - timedelta(seconds=self.duration)
+        )
         if current and ((not next) or (next > current)):
             return Instrumented_StaticTimeSpan_Factory.create(
                 start=current,
@@ -51,7 +59,10 @@ class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
             )
         return NON_EXISTENT_TIME_SPAN
 
-    def get_next(self, moment: datetime) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
+    def get_next(
+        self,
+        moment: datetime,
+    ) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
         if start := self.period_engine.get_next(moment):
             return Instrumented_StaticTimeSpan_Factory.create(
                 start=start,
@@ -78,7 +89,13 @@ class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
         moment: datetime,
         *,
         return_is_current: Literal[True],
-    ) -> Tuple[Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan], Optional[bool]]:
+    ) -> Tuple[
+        Union[
+            Instrumented_StaticTimeSpan_ABC,
+            NonExistentTimeSpan,
+        ],
+        Optional[bool],
+    ]:
         ...
 
     # }}} overloads
@@ -89,8 +106,17 @@ class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
         *,
         return_is_current: bool = False,
     ) -> Union[
-        Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan],
-        Tuple[Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan], Optional[bool]],
+        Union[
+            Instrumented_StaticTimeSpan_ABC,
+            NonExistentTimeSpan,
+        ],
+        Tuple[
+            Union[
+                Instrumented_StaticTimeSpan_ABC,
+                NonExistentTimeSpan,
+            ],
+            Optional[bool],
+        ],
     ]:
         span = self.get_current(moment)
         if not isinstance(span, NonExistentTimeSpan):
@@ -107,9 +133,6 @@ class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
 
 
 class PeriodicTimeSpanWithExtraConditions(PeriodicTimeSpan):
-
-    class ExtraConditionsMaxFails(Enum):
-        NOT_SPECIFIED = auto()
 
     DEFAULT_EXTRA_CONDITIONS_MAX_FAILS = 20
 
@@ -139,7 +162,13 @@ class PeriodicTimeSpanWithExtraConditions(PeriodicTimeSpan):
             all(map(lambda ec: ec(span), self.extra_conditions))
         )
 
-    def get_current(self, moment: datetime) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
+    def get_current(
+        self,
+        moment: datetime,
+    ) -> Union[
+        Instrumented_StaticTimeSpan_ABC,
+        NonExistentTimeSpan,
+    ]:
         span = super().get_current(moment)
         if not isinstance(span, NonExistentTimeSpan) and self.extra_conditions_ok(span):
             return span
@@ -149,10 +178,15 @@ class PeriodicTimeSpanWithExtraConditions(PeriodicTimeSpan):
         self,
         moment: datetime,
         extra_conditions_max_fails: Union[
-            int, None, Literal[ExtraConditionsMaxFails.NOT_SPECIFIED],
+            Literal[ExtraConditionsMaxFails.NOT_SPECIFIED],
+            int,
+            None,
         ] = ExtraConditionsMaxFails.NOT_SPECIFIED,
-    ) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
-        if extra_conditions_max_fails is self.ExtraConditionsMaxFails.NOT_SPECIFIED:
+    ) -> Union[
+        Instrumented_StaticTimeSpan_ABC,
+        NonExistentTimeSpan,
+    ]:
+        if extra_conditions_max_fails is ExtraConditionsMaxFails.NOT_SPECIFIED:
             extra_conditions_max_fails = self.DEFAULT_EXTRA_CONDITIONS_MAX_FAILS
 
         span = Instrumented_StaticTimeSpan_Factory.create(start=moment, duration=0)

@@ -25,4 +25,10 @@ class ResolvedActivity(StaticTimeSpan_ABC):
         self.end = end
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(payload={self.payload!r}, start=<{self.start!s}>, end=<{self.end!s}>)"
+        return (
+            f"{self.__class__.__name__}("
+                f"payload={self.payload!r},"
+                f"start=<{self.start!s}>,"
+                f"end=<{self.end!s}>"
+            ")"
+        )
