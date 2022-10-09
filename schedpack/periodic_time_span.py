@@ -140,9 +140,9 @@ class PeriodicTimeSpan_WithExtraConditions(PeriodicTimeSpan):
         self,
         period_engine: PeriodicTimePoint_ABC,
         duration: seconds,
-        extra_conditions: Iterable[
+        extra_conditions: Optional[Iterable[
             Callable[[Instrumented_StaticTimeSpan_ABC], bool]
-        ] = None,
+        ]] = None,
         extra_conditions_any: bool = False,
     ):
         super().__init__(period_engine, duration)
