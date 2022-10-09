@@ -48,7 +48,8 @@ class Instrumented_StaticTimeSpan_ABC(StaticTimeSpan_ABC):
     ) -> bool:
         """``NonExistentTimeSpan`` is considered to be
         infinitely far in the future,
-        so it must never be less than any other one
+        so it must never be less than any other
+        ``Instrumented_StaticTimeSpan_ABC`` or ``NonExistentTimeSpan``
         """
 
     @abstractmethod
@@ -60,7 +61,8 @@ class Instrumented_StaticTimeSpan_ABC(StaticTimeSpan_ABC):
         ]) -> bool:
         """``NonExistentTimeSpan`` is considered to be
         infinitely far in the future,
-        so it must alway be greater than any other one
+        so it must always be greater than any other
+        ``Instrumented_StaticTimeSpan_ABC`` or ``NonExistentTimeSpan``
         """
 
 
@@ -85,7 +87,7 @@ class PeriodicTimeSpan_ABC(ABC):
     ]:
         """Must return ``Instrumented_StaticTimeSpan_ABC`` that
         contains ``moment``(``[)``);
-        Must return ``NonExistentTimeSpan`` if that cannot be found;
+        If that cannot be found - must return ``NonExistentTimeSpan``;
         """
 
     @abstractmethod
@@ -170,7 +172,7 @@ class PeriodicTimeSpan_ABC(ABC):
         If return_is_current==True, must also return ``False``;
 
         If no ongoing ``Instrumented_StaticTimeSpan_ABC``
-        or future ``Instrumented_StaticTimeSpan_ABC`` could be found,
+        or future ``Instrumented_StaticTimeSpan_ABC`` can be found,
         must return ``NonExistentTimeSpan``;
         If return_is_current==True, must also return ``None``;
         """

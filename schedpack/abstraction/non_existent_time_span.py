@@ -24,7 +24,8 @@ class NonExistentTimeSpan(metaclass=NonExistentTimeSpanMeta):
     ) -> bool:
         """``NonExistentTimeSpan`` is considered to be
         infinitely far in the future,
-        so it must never be less than any other one
+        so it must never be less than any other
+        ``Instrumented_StaticTimeSpan_ABC`` or ``NonExistentTimeSpan``
         """
         return False
 
@@ -37,7 +38,8 @@ class NonExistentTimeSpan(metaclass=NonExistentTimeSpanMeta):
     ) -> bool:
         """``NonExistentTimeSpan`` is considered to be
         infinitely far in the future,
-        so it must alway be greater than any other one
+        so it must always be greater than any other
+        ``Instrumented_StaticTimeSpan_ABC`` or ``NonExistentTimeSpan``
         """
         return True
 
