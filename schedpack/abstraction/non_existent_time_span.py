@@ -1,4 +1,5 @@
 from typing import (
+    Final,
     TYPE_CHECKING,
     Union,
 )
@@ -11,7 +12,7 @@ class NonExistentTimeSpanMeta(type):
     pass
 
 
-class NonExistentTimeSpan(metaclass=NonExistentTimeSpanMeta):
+class NonExistentTimeSpanType(metaclass=NonExistentTimeSpanMeta):
     def __init_subclass__(cls) -> None:
         raise NotImplementedError("SEALED CLASS")
 
@@ -19,7 +20,7 @@ class NonExistentTimeSpan(metaclass=NonExistentTimeSpanMeta):
         self,
         other: Union[
             "Instrumented_StaticTimeSpan_ABC",
-            "NonExistentTimeSpan",
+            "NonExistentTimeSpanType",
         ],
     ) -> bool:
         """``NonExistentTimeSpan`` is considered to be
@@ -33,7 +34,7 @@ class NonExistentTimeSpan(metaclass=NonExistentTimeSpanMeta):
         self,
         other: Union[
             "Instrumented_StaticTimeSpan_ABC",
-            "NonExistentTimeSpan",
+            "NonExistentTimeSpanType",
         ],
     ) -> bool:
         """``NonExistentTimeSpan`` is considered to be
@@ -44,7 +45,7 @@ class NonExistentTimeSpan(metaclass=NonExistentTimeSpanMeta):
         return True
 
 
-NON_EXISTENT_TIME_SPAN = NonExistentTimeSpan()
+NonExistentTimeSpan: Final = NonExistentTimeSpanType()
 
 # singleton (good enough)
-NonExistentTimeSpanMeta.__call__ = lambda cls: NON_EXISTENT_TIME_SPAN  # type: ignore
+NonExistentTimeSpanMeta.__call__ = lambda cls: NonExistentTimeSpan  # type: ignore

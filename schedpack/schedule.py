@@ -15,7 +15,7 @@ from .abstraction.abc import (
     PeriodicActivity_ABC,
 )
 from .abstraction.non_existent_time_span import (
-    NonExistentTimeSpan,
+    NonExistentTimeSpanType,
 )
 from .static_activity import (
     StaticActivity,
@@ -38,7 +38,7 @@ class ManualSchedule:
             )
             for activity, span
             in self._activity__current__s(moment)
-            if not isinstance(span, NonExistentTimeSpan)
+            if not isinstance(span, NonExistentTimeSpanType)
         )
 
     def _activity__current__s(
@@ -47,7 +47,7 @@ class ManualSchedule:
     ) -> Iterable[
         Tuple[
             PeriodicActivity_ABC,
-            Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan],
+            Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpanType],
         ],
     ]:
         """Return ``((<activity>, <current time span>), ...)``"""
@@ -64,7 +64,7 @@ class ManualSchedule:
         if not activity__next__s:
             return ()
         soonest_span = min(map(lambda an: an[1], activity__next__s))
-        if isinstance(soonest_span, NonExistentTimeSpan):
+        if isinstance(soonest_span, NonExistentTimeSpanType):
             return ()
         return tuple(
             StaticActivity(
@@ -75,7 +75,7 @@ class ManualSchedule:
             for activity, span
             in activity__next__s
             if (
-                not isinstance(span, NonExistentTimeSpan)
+                not isinstance(span, NonExistentTimeSpanType)
                 and span.start == soonest_span.start
             )
         )
@@ -86,7 +86,7 @@ class ManualSchedule:
     ) -> Iterable[
         Tuple[
             PeriodicActivity_ABC,
-            Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan],
+            Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpanType],
         ],
     ]:
         """Return ``((<activity>, <next time span>), ...)``"""

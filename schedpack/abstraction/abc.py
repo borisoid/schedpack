@@ -15,7 +15,7 @@ from typing import (
 )
 
 from .non_existent_time_span import (
-    NonExistentTimeSpan,
+    NonExistentTimeSpanType,
 )
 
 
@@ -43,7 +43,7 @@ class Instrumented_StaticTimeSpan_ABC(StaticTimeSpan_ABC):
         self,
         other: Union[
             "Instrumented_StaticTimeSpan_ABC",
-            NonExistentTimeSpan,
+            NonExistentTimeSpanType,
         ]
     ) -> bool:
         """``NonExistentTimeSpan`` is considered to be
@@ -57,7 +57,7 @@ class Instrumented_StaticTimeSpan_ABC(StaticTimeSpan_ABC):
         self,
         other: Union[
             "Instrumented_StaticTimeSpan_ABC",
-            NonExistentTimeSpan,
+            NonExistentTimeSpanType,
         ]) -> bool:
         """``NonExistentTimeSpan`` is considered to be
         infinitely far in the future,
@@ -83,7 +83,7 @@ class PeriodicTimeSpan_ABC(ABC):
         moment: datetime,
     ) -> Union[
         Instrumented_StaticTimeSpan_ABC,
-        NonExistentTimeSpan,
+        NonExistentTimeSpanType,
     ]:
         """Must return ``Instrumented_StaticTimeSpan_ABC`` that
         contains ``moment``(``[)``);
@@ -96,7 +96,7 @@ class PeriodicTimeSpan_ABC(ABC):
         moment: datetime,
     ) -> Union[
         Instrumented_StaticTimeSpan_ABC,
-        NonExistentTimeSpan,
+        NonExistentTimeSpanType,
     ]:
         """Must return the earliest ``Instrumented_StaticTimeSpan_ABC``
         that starts after ``moment``;
@@ -121,7 +121,7 @@ class PeriodicTimeSpan_ABC(ABC):
         return_is_current: Literal[False],
     ) -> Union[
         Instrumented_StaticTimeSpan_ABC,
-        NonExistentTimeSpan,
+        NonExistentTimeSpanType,
     ]:
         ...
 
@@ -135,7 +135,7 @@ class PeriodicTimeSpan_ABC(ABC):
     ) -> Tuple[
         Union[
             Instrumented_StaticTimeSpan_ABC,
-            NonExistentTimeSpan,
+            NonExistentTimeSpanType,
         ],
         Optional[bool],
     ]:
@@ -152,12 +152,12 @@ class PeriodicTimeSpan_ABC(ABC):
     ) -> Union[
         Union[
             Instrumented_StaticTimeSpan_ABC,
-            NonExistentTimeSpan,
+            NonExistentTimeSpanType,
         ],
         Tuple[
             Union[
                 Instrumented_StaticTimeSpan_ABC,
-                NonExistentTimeSpan,
+                NonExistentTimeSpanType,
             ],
             Optional[bool],
         ],

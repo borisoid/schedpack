@@ -14,7 +14,7 @@ from .abstraction.abc import (
     StaticTimeSpan_ABC,
 )
 from .abstraction.non_existent_time_span import (
-    NonExistentTimeSpan,
+    NonExistentTimeSpanType,
 )
 from .abstraction.types import (
     seconds,
@@ -100,16 +100,16 @@ class Instrumented_StaticTimeSpan(Instrumented_StaticTimeSpan_ABC):
 
     def __lt__(
         self,
-        other: Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan],
+        other: Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpanType],
     ) -> bool:
-        if isinstance(other, NonExistentTimeSpan):
+        if isinstance(other, NonExistentTimeSpanType):
             return True
         return self.start < other.start
 
     def __gt__(
         self,
-        other: Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan],
+        other: Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpanType],
     ) -> bool:
-        if isinstance(other, NonExistentTimeSpan):
+        if isinstance(other, NonExistentTimeSpanType):
             return False
         return self.start > other.start

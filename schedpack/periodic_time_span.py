@@ -18,17 +18,17 @@ from .abstraction.abc import (
     PeriodicTimeSpan_ABC,
 )
 from .abstraction.non_existent_time_span import (
-    NON_EXISTENT_TIME_SPAN,
     NonExistentTimeSpan,
+    NonExistentTimeSpanType,
+)
+from .abstraction.periodic_time_span.extra_conditions_max_fails import (
+    ExtraConditionsMaxFails
 )
 from .abstraction.types import (
     seconds,
 )
 from .instrumented_static_time_span import (
     Instrumented_StaticTimeSpan_Factory,
-)
-from .utils.periodic_time_span import (
-    ExtraConditionsMaxFails,
 )
 
 
@@ -43,12 +43,12 @@ class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
         self.duration = duration
 
     def is_ongoing(self, moment: datetime) -> bool:
-        return self.get_current(moment) is not NON_EXISTENT_TIME_SPAN
+        return self.get_current(moment) is not NonExistentTimeSpan
 
     def get_current(
         self,
         moment: datetime,
-    ) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
+    ) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpanType]:
         next = self.periodic_time_point.get_next(moment)
         current = self.periodic_time_point.get_next(
             moment - timedelta(seconds=self.duration)
@@ -58,18 +58,18 @@ class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
                 start=current,
                 duration=self.duration,
             )
-        return NON_EXISTENT_TIME_SPAN
+        return NonExistentTimeSpan
 
     def get_next(
         self,
         moment: datetime,
-    ) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
+    ) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpanType]:
         if start := self.periodic_time_point.get_next(moment):
             return Instrumented_StaticTimeSpan_Factory.create(
                 start=start,
                 duration=self.duration,
             )
-        return NON_EXISTENT_TIME_SPAN
+        return NonExistentTimeSpan
 
     # get_current_or_next {{{
 
@@ -81,7 +81,7 @@ class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
         moment: datetime,
         *,
         return_is_current: Literal[False],
-    ) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpan]:
+    ) -> Union[Instrumented_StaticTimeSpan_ABC, NonExistentTimeSpanType]:
         ...
 
     @overload
@@ -93,7 +93,7 @@ class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
     ) -> Tuple[
         Union[
             Instrumented_StaticTimeSpan_ABC,
-            NonExistentTimeSpan,
+            NonExistentTimeSpanType,
         ],
         Optional[bool],
     ]:
@@ -109,25 +109,25 @@ class PeriodicTimeSpan(PeriodicTimeSpan_ABC):
     ) -> Union[
         Union[
             Instrumented_StaticTimeSpan_ABC,
-            NonExistentTimeSpan,
+            NonExistentTimeSpanType,
         ],
         Tuple[
             Union[
                 Instrumented_StaticTimeSpan_ABC,
-                NonExistentTimeSpan,
+                NonExistentTimeSpanType,
             ],
             Optional[bool],
         ],
     ]:
         span = self.get_current(moment)
-        if not isinstance(span, NonExistentTimeSpan):
+        if not isinstance(span, NonExistentTimeSpanType):
             return (span, True) if return_is_current else span
 
         span = self.get_next(moment)
-        if not isinstance(span, NonExistentTimeSpan):
+        if not isinstance(span, NonExistentTimeSpanType):
             return (span, False) if return_is_current else span
 
-        span = NON_EXISTENT_TIME_SPAN
+        span = NonExistentTimeSpan
         return (span, None) if return_is_current else span
 
     # }}} get_current_or_next
@@ -172,12 +172,12 @@ class PeriodicTimeSpan_WithExtraConditions(PeriodicTimeSpan):
         moment: datetime,
     ) -> Union[
         Instrumented_StaticTimeSpan_ABC,
-        NonExistentTimeSpan,
+        NonExistentTimeSpanType,
     ]:
         span = super().get_current(moment)
-        if not isinstance(span, NonExistentTimeSpan) and self.extra_conditions_ok(span):
+        if not isinstance(span, NonExistentTimeSpanType) and self.extra_conditions_ok(span):
             return span
-        return NON_EXISTENT_TIME_SPAN
+        return NonExistentTimeSpan
 
     def get_next(
         self,
@@ -190,7 +190,7 @@ class PeriodicTimeSpan_WithExtraConditions(PeriodicTimeSpan):
         ] = ExtraConditionsMaxFails.NOT_SPECIFIED,
     ) -> Union[
         Instrumented_StaticTimeSpan_ABC,
-        NonExistentTimeSpan,
+        NonExistentTimeSpanType,
     ]:
         if extra_conditions_max_fails is ExtraConditionsMaxFails.NOT_SPECIFIED:
             extra_conditions_max_fails = self.DEFAULT_EXTRA_CONDITIONS_MAX_FAILS
@@ -198,12 +198,12 @@ class PeriodicTimeSpan_WithExtraConditions(PeriodicTimeSpan):
         span = Instrumented_StaticTimeSpan_Factory.create(start=moment, duration=0)
         while True:
             span = super().get_next(span.start)  # type: ignore
-            if not isinstance(span, NonExistentTimeSpan):
+            if not isinstance(span, NonExistentTimeSpanType):
                 if not self.extra_conditions_ok(span):
                     if extra_conditions_max_fails is not None:
                         extra_conditions_max_fails -= 1
                         if extra_conditions_max_fails <= 0:
-                            return NON_EXISTENT_TIME_SPAN
+                            return NonExistentTimeSpan
                     else:
                         continue
                 else:
