@@ -202,17 +202,17 @@ class PeriodicTimeSpan_WithExtraConditions(PeriodicTimeSpan):
         assert not isinstance(span, NonExistentTimeSpanType)
         while True:
             span = super().get_next(span.start)
-            if not isinstance(span, NonExistentTimeSpanType):
-                if not self.extra_conditions_ok(span):
-                    if extra_conditions_max_fails is not None:
-                        extra_conditions_max_fails -= 1
-                        if extra_conditions_max_fails <= 0:
-                            return NonExistentTimeSpan
-                    else:
-                        continue
-                else:
-                    break
-            else:
+            if isinstance(span, NonExistentTimeSpanType):
                 break
+
+            if self.extra_conditions_ok(span):
+                break
+
+            if extra_conditions_max_fails is None:
+                continue
+
+            extra_conditions_max_fails -= 1
+            if extra_conditions_max_fails <= 0:
+                return NonExistentTimeSpan
 
         return span
