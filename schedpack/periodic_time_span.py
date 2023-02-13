@@ -195,9 +195,13 @@ class PeriodicTimeSpan_WithExtraConditions(PeriodicTimeSpan):
         if extra_conditions_max_fails is ExtraConditionsMaxFails.NOT_SPECIFIED:
             extra_conditions_max_fails = self.DEFAULT_EXTRA_CONDITIONS_MAX_FAILS
 
-        span = Instrumented_StaticTimeSpan_Factory.create(start=moment, duration=0)
+        span: Union[
+            Instrumented_StaticTimeSpan_ABC,
+            NonExistentTimeSpanType,
+        ] = Instrumented_StaticTimeSpan_Factory.create(start=moment, duration=0)
+        assert not isinstance(span, NonExistentTimeSpanType)
         while True:
-            span = super().get_next(span.start)  # type: ignore
+            span = super().get_next(span.start)
             if not isinstance(span, NonExistentTimeSpanType):
                 if not self.extra_conditions_ok(span):
                     if extra_conditions_max_fails is not None:
